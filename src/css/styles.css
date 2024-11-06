@@ -58,7 +58,7 @@ main {
 outline: auto;
 }
 
-.search-input:active {
+.search-input:active, .search-input:focus {
   outline: none; 
   border: 1px solid #4e75ff;
 }
