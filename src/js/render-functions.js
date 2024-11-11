@@ -1,5 +1,5 @@
 
-export function createMarcup(arr) {
+export function createMarcup(arr,page=1) {
     return arr.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
         <li class="item-card">
         <a href="${largeImageURL}"><img class="item-img" src="${webformatURL}" alt="${tags}"  width="360" /></a>
