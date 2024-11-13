@@ -74,7 +74,12 @@ async function handeSearch(event) {
 
     form.reset();
   } catch (error) {
-    alert(error.message);
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to fetch images. Please try again later.',
+      timeout: 3000,
+      closeOnClick: true,
+    });
   } finally {
     submitBtn.disabled = false;
 
@@ -94,8 +99,7 @@ async function onLoadMore() {
   try {
   const data = await fetchData(imageInput, page, countItem);
  
-  let remainder = countItem - data.hits.length;
-    if (page * countItem <= data.totalHits + remainder) {
+    if (data.totalHits > countItem * page) {
           loadMore.style.display = 'inline-block';      
     } else{
       loadMore.classList.add("load-more-hidden");
@@ -104,7 +108,7 @@ async function onLoadMore() {
       iziToast.show({
         position: 'topRight',
         messageColor: 'blue',
-        message: `The end of search results.`,
+        message: `We're sorry, but you've reached the end of search results.`,
       });  
     }
 
@@ -118,7 +122,12 @@ async function onLoadMore() {
       behavior: 'smooth',
     });
   } catch (error) {
-    alert(error.message);
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to fetch images. Please try again later.',
+      timeout: 3000,
+      closeOnClick: true,
+    });
   } finally {
     loadMore.disabled = false;
     loadEnd.classList.remove('loader');
