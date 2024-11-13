@@ -27,7 +27,7 @@ loadMore.addEventListener('click', onLoadMore);
 async function handeSearch(event) {
   event.preventDefault();
   const submitBtn = document.querySelector('.search-btn');
-  loadMore.classList.replace('load-more', 'load-more-hidden');
+  loadMore.style.display = 'none';
   list.innerHTML = '';
   submitBtn.disabled = true;
   imageInput = input.value.trim();
@@ -41,15 +41,12 @@ async function handeSearch(event) {
       message: 'Enter a search word!',
     });
     list.innerHTML = '';
-    loadMore.classList.replace('load-more', 'load-more-hidden');
+    loadMore.style.display = 'none';
     return;
   }
   load.classList.add('loader');
   try {
-    // page = 1;
-
     const data = await fetchData(imageInput, (page = 1), countItem);
-    console.log(data);
     load.classList.remove('loader');
     if (!data.hits.length) {
       iziToast.error({
@@ -62,27 +59,30 @@ async function handeSearch(event) {
       });
       form.reset();
       list.innerHTML = '';
-      loadMore.classList.replace('load-more', 'load-more-hidden');
+      loadMore.style.display = 'none';
+      
       return;
     }
+    loadMore.classList.add('load-more');
+
     list.insertAdjacentHTML('afterbegin', createMarcup(data.hits, page));
     gallery.refresh();
 
     if (page < Math.ceil(data.totalHits / 15)) {
-      loadMore.classList.replace('load-more-hidden', 'load-more');
+      loadMore.style.display = 'inline-block';
     }
 
     form.reset();
-    console.log(page);
   } catch (error) {
     alert(error.message);
   } finally {
     submitBtn.disabled = false;
+
   }
 }
 
 async function onLoadMore() {
-  loadMore.classList.replace('load-more', 'load-more-hidden');
+  loadMore.style.display = 'none';
   loadEnd.classList.replace('visually-hidden', 'load-end-open');
 
   loadEnd.classList.add('loader');
@@ -92,12 +92,23 @@ async function onLoadMore() {
   loadMore.disabled = true;
 
   try {
-    const data = await fetchData(imageInput, page, countItem);
+  const data = await fetchData(imageInput, page, countItem);
+ 
+  let remainder = countItem - data.hits.length;
+    if (page * countItem <= data.totalHits + remainder) {
+          loadMore.style.display = 'inline-block';      
+    } else{
+      loadMore.classList.add("load-more-hidden");
+           loadMore.style.display = 'none';      
+
+      iziToast.show({
+        position: 'topRight',
+        messageColor: 'blue',
+        message: `The end of search results.`,
+      });  
+    }
 
     list.insertAdjacentHTML('beforeend', createMarcup(data.hits, page));
-    if (page >= data.totalHits / 15) {
-      loadMore.classList.replace('load-more', 'load-more-hidden');
-    }
     gallery.refresh();
     const card = document.querySelector('.item-card');
     const cardHeight = card.getBoundingClientRect().height;
@@ -106,12 +117,10 @@ async function onLoadMore() {
       top: cardHeight * 3 - 76,
       behavior: 'smooth',
     });
-    console.log(page);
   } catch (error) {
     alert(error.message);
   } finally {
     loadMore.disabled = false;
-    loadMore.classList.replace('load-more-hidden', 'load-more');
     loadEnd.classList.remove('loader');
     loadEnd.classList.add('visually-hidden');
   }
